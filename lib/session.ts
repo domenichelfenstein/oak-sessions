@@ -1,4 +1,4 @@
-import { Context, RouterContext, CookiesSetDeleteOptions } from "https://deno.land/x/oak/mod.ts";
+import { Context, CookiesSetDeleteOptions } from "https://deno.land/x/oak/mod.ts";
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { InMemorySessionRepository } from "./inMemorySessionRepository.ts";
 import { ISessionRepository } from "./interfaces.ts";
@@ -24,7 +24,7 @@ export class Session<T> {
         await next();
     };
 
-    public getState = async (context: RouterContext): Promise<T> => {
+    public getState = async (context: Context): Promise<T> => {
         const sessionId = await this.getKey(context);
         const state = await this.repo.get(sessionId);
         if(state) {
@@ -36,12 +36,12 @@ export class Session<T> {
         }
     };
 
-    public storeState = async (context: RouterContext, state: T) => {
+    public storeState = async (context: Context, state: T) => {
         const sessionId = await this.getKey(context);
         await this.repo.set(sessionId, state);
     };
 
-    private getKey = (context: RouterContext) => {
+    private getKey = (context: Context) => {
         const sessionIdFromCookies = context.cookies.get(SESSION_ID);
         const sessionId = sessionIdFromCookies ?? this.tempKey;
         return new Promise<string>((resolve, reject) => {
