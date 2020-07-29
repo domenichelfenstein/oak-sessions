@@ -5,7 +5,7 @@ A simple session middleware for [oak](https://github.com/oakserver/oak).
 ## How to use it?
 ```ts
 import { Application } from "https://deno.land/x/oak/mod.ts";
-import { Session } from "../mod.ts";
+import { Session } from "https://raw.githubusercontent.com/domenichelfenstein/oak-sessions/master/mod.ts";
 
 // 1. create session object and specify how a new session gets initialized
 const session = new Session(() => ({ counter: 1 }));
