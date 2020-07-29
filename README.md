@@ -22,5 +22,5 @@ await app.listen({ port: 8000 });
 ```
 \* this code is simplified and will not work perfectly
 (your browser usually performs Favicon requests, leading to a +2 increase
-every time you hit the F5 button). Use the example, or even better use Routers
-to handle your requests.
+every time you hit the F5 button). Use the code in the `examples` folder,
+or even better use Routers to handle your requests.
