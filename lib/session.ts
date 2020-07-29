@@ -6,50 +6,31 @@ import { ISessionRepository } from "./interfaces.ts";
 const SESSION_ID = "seesionId";
 
 export class Session<T> {
-    private tempKey: string | undefined;
-
     constructor(
         private initState: () => T,
         private cookieOptions: CookiesSetDeleteOptions = {},
-        private repo: ISessionRepository<T> = new InMemorySessionRepository<T>()) {}
+        private repo: ISessionRepository<T> = new InMemorySessionRepository<T>()) { }
 
     public sessionHandling = async (context: Context, next: () => Promise<void>) => {
-        if (context.cookies.get(SESSION_ID) == undefined) {
+        let sessionId: string;
+        const cookieSessionId = context.cookies.get(SESSION_ID);
+        if (cookieSessionId == undefined) {
             const initialState = this.initState();
-            const uuid = v4.generate();
-            await this.repo.set(uuid, initialState);
-            context.cookies.set(SESSION_ID, uuid, this.cookieOptions);
-            this.tempKey = uuid;
-        }
-        await next();
-    };
-
-    public getState = async (context: Context): Promise<T> => {
-        const sessionId = await this.getKey(context);
-        const state = await this.repo.get(sessionId);
-        if(state) {
-            return state;
+            sessionId = v4.generate();
+            await this.repo.set(sessionId, initialState);
+            context.cookies.set(SESSION_ID, sessionId, this.cookieOptions);
+            context.state.session = initialState;
         } else {
-            const newState = this.initState();
-            await this.repo.set(sessionId, newState);
-            return newState;
+            sessionId = cookieSessionId;
+            context.state.session = await this.repo.get(sessionId)
+                .catch(async _ => {
+                    const initialState = this.initState();
+                    await this.repo.set(sessionId, initialState);
+                    return initialState;
+                });
         }
-    };
 
-    public storeState = async (context: Context, state: T) => {
-        const sessionId = await this.getKey(context);
-        await this.repo.set(sessionId, state);
+        await next();
+        await this.repo.set(sessionId, context.state.session);
     };
-
-    private getKey = (context: Context) => {
-        const sessionIdFromCookies = context.cookies.get(SESSION_ID);
-        const sessionId = sessionIdFromCookies ?? this.tempKey;
-        return new Promise<string>((resolve, reject) => {
-            if(sessionId) {
-                resolve(sessionId);
-            } else {
-                reject();
-            }
-        });
-    }
 }
