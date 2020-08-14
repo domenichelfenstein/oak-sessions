@@ -1,5 +1,5 @@
-import { Context, CookiesSetDeleteOptions } from "https://deno.land/x/oak/mod.ts";
-import { v4 } from "https://deno.land/std/uuid/mod.ts";
+import { Context, CookiesSetDeleteOptions } from "https://deno.land/x/oak@v6.0.1/mod.ts";
+import { v4 } from "https://deno.land/std@0.65.0/uuid/mod.ts";
 import { InMemorySessionRepository } from "./inMemorySessionRepository.ts";
 import { ISessionRepository } from "./interfaces.ts";
 
